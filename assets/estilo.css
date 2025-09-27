@@ -1,222 +1,168 @@
-@import url('https://fonts.googleapis.com/css2?family=Comic+Neue&family=Quicksand&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Comfortaa&display=swap');
-
-body{
-    font-family: 'Quicksand', sans-serif;
-    transition: 3000ms linear;
+/* RESET E CONFIGURAÇÕES GERAIS */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-.container{
-    transition: 1000ms;
-}
-
-
-h1, h2, h3, button, a{
-    font-family: 'Comic Neue', cursive;
-}
-
-h1, h2, h3{
-    font-weight: 700;
-}
-
-.invisivel{
-    display: none;
-}
-.visivel{
-    display: block;
-}
-
-.letra2{
-    font-family: 'Comfortaa', cursive;
-    font-size: 1.7em;
-    font-weight: 400;
-    padding: auto 30px auto 30px;
-}
-
-.letra-vermelha{
-    background: -webkit-linear-gradient(#f857a6, #ff5858);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-.fundo1, .fundo2, .fundo3, .fundo4, .fundo5, .fundo6, .fundo7{
-    background-repeat: no-repeat;
-    background-position: center;
-    background-attachment: fixed;
-    -webkit-background-size: cover;
-    -moz-background-size: cover;
-    -o-background-size: cover;
-    background-size: cover;
-}
-
-.fundo1{
-    background-image: url('../imagens/fundo1.jpg');   
-}
-.fundo2{
-    background-image: url('../imagens/fundo2.gif');
-}
-.fundo3{
-    background-image: url('../imagens/fundo3.gif');
-}
-.fundo4{
-    background-image: url('../imagens/fundo4.jpg');
-}
-.fundo5{
-    background-image: url('../imagens/fundo5.gif');
-}
-.fundo6{
-    background-image: url('../imagens/fundo9.gif');
-}
-.fundo7{
-    background-image: url('../imagens/fundo7.gif');
-}
-.fundo10{
-    background-color: #111;
-}
-
-img{
-    border-radius: 12px;
-}
-
-.tela:not(.visivel){
-    display: none;
-}
-
-.tela img:not(.custom){
-    width: 100%;
-    margin: 10px auto 15px auto;
-}
-
-.tela{
-    background-color: #FFF;
-    padding: 50px 30px;
-    border-radius: 10px;
-    color: #555;
-    width: 90%;
-    max-width: 500px;
-    margin-top: 10%;
-    margin-bottom: 100px;
-    text-align: center;
-}
-
-.tela-centro{
-    position: absolute;
-    top: 50%;
-    transform: translate(0, -50%);
-    margin-top: 0;
-    width: 90%;
-    text-align: center;
-    padding: auto 30px auto 30px;
-}
-
-.btn-block{
-    width: 100%;
-}
-
-.btn-verde {background-image: linear-gradient(to right, #50C9C3 0%, #96DEDA  51%, #50C9C3  100%)}
-.btn-verde {
-   margin: 10px;
-   padding: 15px 45px;
-   text-align: center;
-   text-transform: uppercase;
-   transition: 0.5s;
-   background-size: 200% auto;
-   color: white;            
-   box-shadow: 0 0 20px #eee;
-   border-radius: 10px;
-   
-   border: none;
- }
-
- 
- .btn-vermelho {background-image: linear-gradient(to right, #CB356B 0%, #BD3F32  51%, #CB356B  100%)}
- .btn-vermelho {
-    margin: 10px;
-    padding: 15px 45px;
-    text-align: center;
-    text-transform: uppercase;
-    transition: 0.5s;
-    background-size: 200% auto;
-    color: white;            
-    box-shadow: 0 0 20px #eee;
-    border-radius: 10px;
-    
-    border: none;
-  }
-
-  
-  .btn-rosa {background-image: linear-gradient(to right, #f857a6 0%, #ff5858  51%, #f857a6  100%)}
-  .btn-rosa {
-     margin: 10px;
-     padding: 15px 45px;
-     text-align: center;
-     text-transform: uppercase;
-     transition: 0.5s;
-     background-size: 200% auto;
-     color: white;            
-     box-shadow: 0 0 20px #eee;
-     border-radius: 10px;
-     border: none;
-   }
-  
-   
-   
-   .btn-azul {background-image: linear-gradient(to right, #36D1DC 0%, #5B86E5  51%, #36D1DC  100%)}
-   .btn-azul {
-      margin: 10px;
-      padding: 15px 45px;
-      text-align: center;
-      text-transform: uppercase;
-      transition: 0.5s;
-      background-size: 200% auto;
-      color: white;            
-      box-shadow: 0 0 20px #eee;
-      border-radius: 10px;
-      border: none
-    }
-   
- 
-.calendario{
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 10px;
-}
-.calendario tbody{
-    text-align: center;
-    color: #CCC;
-}
-.calendario thead{
-    font-size: 0.5em;
-    font-weight: 700;
-}
-.calendario .marcado{
+body {
+    font-family: 'Roboto', sans-serif;
     color: #FFF;
-    background-color: #36D1DC;
-    border-radius: 15px;
-    cursor: pointer;
-}
-
-.pop-up{
-    display: none;
-    position: absolute;
-    background-color: #FFF;
-    z-index: 500;
-    border-radius: 20px;
-    box-shadow: 1px 2px 3px grey;
-    padding: 30px 20px 20px 20px;
-    margin: auto;
-    right: 0;
-    left: 0;
-    width: 90%;
-    max-width: 500px;
-    top: 20%;
-}
-.pop-up h1, .pop-up button{
+    background-color: #000;
     text-align: center;
-
+    transition: background-image 0.9s ease-in-out;
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
 }
-#btnNao {
-    position: absolute;
-    transition: all 0.3s ease;
 
+/* CLASSES DE FUNDO (COLOQUE SUAS IMAGENS) */
+.fundo1 { background-image: url('../imagens/fundo1.jpg'); }
+.fundo2 { background-image: url('../imagens/fundo2.gif'); }
+.fundo3 { background-image: url('../imagens/fundo3.gif'); }
+.fundo4 { background-image: url('../imagens/fundo4.jpg'); }
+.fundo6 { background-image: url('../imagens/fundo6.jpg'); }
+.fundo7 { background-image: url('../imagens/fundo7.gif'); }
+.fundo9 { background-image: url('../imagens/fundo9.gif'); }
+
+/* CONTAINER PRINCIPAL */
+#container-surpresa {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.5); /* Escurece um pouco o fundo para melhor leitura */
+}
+
+/* ESTILO DAS TELAS */
+.tela {
+    display: none; /* Todas as telas começam escondidas */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 600px;
+    opacity: 0;
+    transition: opacity 0.8s ease-in-out;
+}
+
+.tela.visivel {
+    display: flex; /* A tela ativa se torna visível */
+    opacity: 1;
+}
+
+/* ELEMENTOS DE TEXTO */
+h1, h2 {
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+h1 { font-size: 2.5rem; }
+h2 { font-size: 2rem; }
+p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+hr {
+    width: 80%;
+    border: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.5);
+    margin: 1.5rem 0;
+}
+ul {
+    list-style-position: inside;
+    text-align: left;
+    max-width: 90%;
+}
+li { margin-bottom: 0.5rem; }
+
+/* CLASSES DE DESTAQUE DE TEXTO */
+.legenda {
+    font-size: 0.9rem;
+    color: #ccc;
+}
+.destaque-vermelho {
+    color: #ff8a8a;
+    font-weight: 700;
+}
+.pergunta-final {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-top: 2rem;
+}
+.agradecimento {
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+.legenda-foto {
+    font-size: 0.9em;
+    font-style: italic;
+    color: #ddd;
+    max-width: 80%;
+    margin-top: 0.5rem;
+}
+
+/* IMAGENS */
+.retrato, .tela-conteudo img {
+    max-width: 200px;
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    border: 3px solid #FFF;
+    margin: 1rem 0;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+.tela-conteudo img { max-width: 100%; }
+
+/* BOTÕES */
+button {
+    cursor: pointer;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 5px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.btn-azul {
+    background-color: #3b82f6;
+    color: white;
+}
+.btn-vermelho {
+    background-color: #ef4444;
+    color: white;
+}
+.btn-rosa {
+    background-color: #ec4899;
+    color: white;
+}
+
+/* TELAS ESPECIAIS */
+.tela-conteudo {
+    text-align: left;
+    background-color: rgba(0, 0, 0, 0.4);
+    padding: 2rem;
+    border-radius: 15px;
+}
+.tela-conteudo h2 { text-align: center; }
+.tela-conteudo img { margin: 0 auto 1rem; display: block; }
+.tela-conteudo button { display: block; margin: 1.5rem auto 0; }
+
+.tela-temporizada p {
+    display: none; /* Frases começam escondidas */
+    opacity: 0;
+    transition: opacity 0.8s ease-in-out;
+}
+.com-imagem {
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
 }
