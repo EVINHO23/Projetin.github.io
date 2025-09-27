@@ -1,8 +1,7 @@
-confirm("Are you sure you want to delete?")
 $(document).ready(function(){
 
     $(".mudaTela").click(function(){
-        mudaTela( $(this), $(this).attr("nova"), $(this).attr("animacao"), $(this).attr("tempoAnimacao") );
+        mudaTela( $(this) ); // Simplifiquei a chamada aqui
     });
 
     $("a.opcoes").click(function(e){
@@ -14,43 +13,57 @@ $(document).ready(function(){
         mostraMsgMes($(this).attr("value"));
     });
 
-    const mudaTela = ( atual, nova = null, animacao = "fade", tempoAnimacao = 900 ) => {
+    // =========================================================================
+    // FUNÇÃO MUDA TELA - VERSÃO ATUALIZADA
+    // =========================================================================
+    const mudaTela = ( atual ) => {
+        
+        let animacao = atual.attr("animacao") || "fade";
+        let tempoAnimacao = atual.attr("tempoAnimacao") || 900;
+        let telaAtualId = atual.parent().attr("id");
+        let proximaTelaId = atual.attr("proximaTela");
 
         // define a nova tela
-        if(!nova){
-            nova = parseInt(atual.parent().attr("id").split("tela")[1])+1;
+        if(proximaTelaId){
+            nova = proximaTelaId; // Usa o ID do atributo se ele existir
+        } else {
+            // Lógica original para pegar a próxima tela sequencial
+            nova = "tela" + (parseInt(telaAtualId.split("tela")[1]) + 1);
         }
 
         if(animacao == "fade"){
-            $("#tela"+(nova-1)).fadeOut(tempoAnimacao);
+            $("#"+telaAtualId).fadeOut(tempoAnimacao);
             setTimeout(() => {
-                $("#tela"+nova).fadeIn(tempoAnimacao)
+                $("#"+nova).fadeIn(tempoAnimacao);
             }, tempoAnimacao);
         }else{
-            $("#tela"+(nova-1)).hide(tempoAnimacao);
-            $("#tela"+nova).show(tempoAnimacao);
+            $("#"+telaAtualId).hide(tempoAnimacao);
+            $("#"+nova).show(tempoAnimacao);
         }
-
-        if($("#tela"+nova).hasClass("temporizado")){
-            $("#tela"+nova+" div").hide();
+        
+        if($("#"+nova).hasClass("temporizado")){
+            $("#"+nova+" div").hide();
             telaTemporizada(nova, 0);
         }
 
         verificaFundo(nova);
         $("html, body").animate({ scrollTop: 0 }, "slow");
-        if(nova == 5){
+        
+        if(nova == "tela5"){
             var audio = new Audio('assets/musica.mp3');
             audio.volume = 0.1;
             audio.play();
         }
-        
     }
 
+    // =========================================================================
+    // FUNÇÃO TELA TEMPORIZADA - VERSÃO ATUALIZADA
+    // =========================================================================
     const telaTemporizada = ( nTela, contador ) =>{
 
-        const tela = $("#tela"+nTela+" div:eq("+contador+")");
+        const tela = $("#" + nTela + " div:eq(" + contador + ")");
         const temporizador = 500;
-        const temporizadorPrimeiraTela = (contador==0?$("#tela"+nTela).attr("tempo"):temporizador);
+        const temporizadorPrimeiraTela = (contador == 0 ? $("#" + nTela).attr("tempo") : temporizador);
 
         setTimeout(() => {
             tela.fadeIn(temporizador);
@@ -58,27 +71,43 @@ $(document).ready(function(){
             setTimeout(() => {
                 tela.fadeOut(temporizador);
                 if(tela.attr("final") == "true"){
-                    mudaTela(null, nTela+1, "fade", 900);
-                    verificaFundo(nTela+1);
-                }else{
-                    telaTemporizada(nTela, contador+1);
+                    
+                    let proximaTelaId = tela.attr("proximaTela");
+                    
+                    if (proximaTelaId) {
+                        // Chama a transição para a tela específica (ex: de tela13 para tela20)
+                        let telaDestino = $("#" + proximaTelaId);
+                        $("#" + nTela).fadeOut(900);
+                        setTimeout(() => {
+                            telaDestino.fadeIn(900);
+                            verificaFundo(proximaTelaId);
+                        }, 900);
+
+                    } else {
+                        // Lógica original para pular para a próxima tela sequencial
+                        let nTelaNumero = parseInt(nTela.split("tela")[1]);
+                        let proximaSequencial = "tela" + (nTelaNumero + 1);
+                         $("#" + nTela).fadeOut(900);
+                        setTimeout(() => {
+                            $("#" + proximaSequencial).fadeIn(900);
+                            verificaFundo(proximaSequencial);
+                        }, 900);
+                    }
+
+                } else {
+                    telaTemporizada(nTela, contador + 1);
                 }
 
             }, tela.attr("tempo") );
 
         }, temporizadorPrimeiraTela);
-        
     }
 
     const verificaFundo = (nTela) =>{
-
-        const fundo = $("#tela"+nTela).attr("fundo");
-        const tempo = $("#tela"+nTela).attr("tempo");
-
+        const fundo = $("#"+nTela).attr("fundo");
         if(fundo){
             $("body").attr("class", fundo);            
         }
-        
     }
 
     const mostraMsgMes = (texto) =>{
@@ -104,65 +133,28 @@ $(document).ready(function(){
         telaFinal = (texto=="final"?true:false);
     }
 
-    
+    let telaFinal = false;
 
-});
+    const mostraPopUp = (mostrar, titulo = "Título de testes", mensagem = "Mensagem de teste...") =>{
 
-let telaFinal = false;
+        if(mostrar){
+            $("html, body").animate({ scrollTop: $(".pop-up")[0].offsetTop }, "smooth");
+            $(".pop-up").fadeIn(500);
+            $(".pop-up h1").html(titulo);
+            $(".pop-up div").html(mensagem);
+            $(".container").css("opacity", "0.5");
+        }else{
+            $(".pop-up").fadeOut(500);
+            $(".container").css("opacity", "1");
 
-const mostraPopUp = (mostrar, titulo = "Título de testes", mensagem = "Mensagem de teste...") =>{
-
-    if(mostrar){
-        $("html, body").animate({ scrollTop: $(".pop-up")[0].offsetTop }, "smooth");
-        $(".pop-up").fadeIn(500);
-        $(".pop-up h1").html(titulo);
-        $(".pop-up div").html(mensagem);
-        $(".container").css("opacity", "0.5");
-    }else{
-        $(".pop-up").fadeOut(500);
-        $(".container").css("opacity", "1");
-
-        if(telaFinal){
-            $("#tela19").fadeOut(4000);
-            setTimeout(() => {
-                $("#tela20").fadeIn(6500);
-                $("body").attr("class", "fundo6");    
-                $("html, body").animate({ scrollTop: 0 }, "slow");
-            }, 4000);
+            if(telaFinal){
+                $("#tela19").fadeOut(4000);
+                setTimeout(() => {
+                    $("#tela20").fadeIn(6500);
+                    $("body").attr("class", "fundo6");    
+                    $("html, body").animate({ scrollTop: 0 }, "slow");
+                }, 4000);
+            }
         }
-
-
-// --- Código novo para o pedido de perdão ---
-
-// Pega os botões da nova tela
-const btnSim = document.getElementById('btnSim');
-const btnNao = document.getElementById('btnNao');
-
-// Adiciona o evento para o botão 'Sim'
-btnSim.addEventListener('click', function() {
-    // Esconde a tela atual (tela 12)
-    document.getElementById('tela12').classList.remove('visivel');
-    
-    // Mostra a tela final feliz (tela 13)
-    let telaFinal = document.getElementById('tela13');
-    telaFinal.classList.add('visivel');
-
-    // Troca o fundo da página, se houver um fundo definido na tela
-    if (telaFinal.getAttribute('fundo')) {
-        document.body.className = ''; // Limpa classes de fundo antigas
-        document.body.classList.add(telaFinal.getAttribute('fundo'));
     }
 });
-
-// Adiciona o evento para o botão 'Não' fugir
-btnNao.addEventListener('mouseover', function() {
-    // Gera uma posição aleatória na tela
-    let newX = Math.random() * (window.innerWidth - 100);
-    let newY = Math.random() * (window.innerHeight - 100);
-    
-    // Aplica a nova posição ao botão
-    btnNao.style.left = newX + 'px';
-    btnNao.style.top = newY + 'px';
-});
-
-// --- Fim do código novo ---
