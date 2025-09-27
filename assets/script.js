@@ -1,6 +1,8 @@
 $(document).ready(function(){
 
-    $(".mudaTela").click(function(){
+    // MUDANÇA CRÍTICA: Em vez de prender o clique diretamente no botão,
+    // prendemos no 'documento' e delegamos para o botão. Isso garante que funcione sempre.
+    $(document).on("click", ".mudaTela", function(){
         mudaTela( $(this), $(this).attr("nova"), $(this).attr("animacao"), $(this).attr("tempoAnimacao") );
     });
 
@@ -19,7 +21,6 @@ $(document).ready(function(){
         let proximaTelaId = atual.attr("proximaTela"); 
 
         let idTelaDestino;
-        let numeroTelaDestino;
 
         if (proximaTelaId) {
             idTelaDestino = proximaTelaId;
@@ -27,8 +28,6 @@ $(document).ready(function(){
             let numeroTelaAtual = parseInt(telaAtualId.split("tela")[1]);
             idTelaDestino = "tela" + (numeroTelaAtual + 1);
         }
-
-        numeroTelaDestino = parseInt(idTelaDestino.split("tela")[1]);
 
         if(animacao == "fade"){
             $("#" + telaAtualId).fadeOut(tempoAnimacao);
@@ -42,17 +41,16 @@ $(document).ready(function(){
 
         if($("#" + idTelaDestino).hasClass("temporizado")){
             $("#" + idTelaDestino + " div").hide();
-            telaTemporizada(numeroTelaDestino, 0);
+            telaTemporizada(parseInt(idTelaDestino.split("tela")[1]), 0);
         }
 
-        verificaFundo(numeroTelaDestino);
+        verificaFundo(parseInt(idTelaDestino.split("tela")[1]));
         $("html, body").animate({ scrollTop: 0 }, "slow");
-        if(numeroTelaDestino == 5){
+        if(parseInt(idTelaDestino.split("tela")[1]) == 5){
             var audio = new Audio('assets/musica.mp3');
             audio.volume = 0.1;
             audio.play();
         }
-        
     }
 
     const telaTemporizada = ( nTela, contador ) =>{
@@ -77,8 +75,13 @@ $(document).ready(function(){
                             verificaFundo(parseInt(proximaTelaId.split("tela")[1]));
                         }, 900);
                     } else {
-                        mudaTela(tela, nTela+1, "fade", 900);
-                        verificaFundo(nTela+1);
+                        // Se não houver destino, chama a função mudaTela de forma segura
+                        let proximaTelaNum = nTela + 1;
+                        $("#tela" + nTela).fadeOut(900);
+                        setTimeout(() => {
+                            $("#tela" + proximaTelaNum).fadeIn(900);
+                            verificaFundo(proximaTelaNum);
+                        }, 900);
                     }
 
                 }else{
@@ -92,21 +95,15 @@ $(document).ready(function(){
     }
 
     const verificaFundo = (nTela) =>{
-
         const fundo = $("#tela"+nTela).attr("fundo");
-        const tempo = $("#tela"+nTela).attr("tempo");
-
         if(fundo){
             $("body").attr("class", fundo);            
         }
-        
     }
 
     const mostraMsgMes = (texto) =>{
-
         let titulo;
         let mensagem;
-
         switch(texto){
             case "5/5": titulo = "05 de Maio de 2021"; mensagem = "<p>Esse foi o dia que nos conhecemos! Ou pelo menos, o dia que nos conhecemos já sabendo que dali pra frente poderiamos ter alguma coisa juntos.</p><p>Foi bem rápido, você estava atrasada para o serviço (normal) e conversamos tão pouquinho, mas já foi o suficiente para eu entender naquele momento que você era diferente, e que todo o tempo que eu dedicava em escrever minhas mensanges pra você, estavam valendo a pena. Eu quis de verdade, a partir desse dia, te conhecer melhor do que já conhecia por mensagens.</p><p>E eu estava certo, você é incrível!</p>";break;
             case "8/5": titulo = "08 de Maio de 2021"; mensagem = "<p>Foi o primeiro dia que saímos.<br>Você estava linda, usando um contorno branco nos olhos e batom rosa bem claro.</p><p>Sentamos em um banco na lagoa e a todo momento eu ainda não conseguia acreditar que estava ali com você, você estava incrível e aquele momento foi mágico pra mim, e tive a certeza disso depois de poder finalmente te beijar de verdade! E que beijo bom ❤️</p>";break;
@@ -120,7 +117,6 @@ $(document).ready(function(){
             case "19/6": titulo = "19 de Junho de 2021"; mensagem = "<section class='text-center'><p class='letra-vermelha'><strong>Este momento está sendo escrito agora...</strong></p></section>";break;
             case "final": titulo = "19 de Junho de 2021"; mensagem = "<section class='text-center mt-5 mb-5'><p><strong>O dia em que ela disse<br><span class='letra2 letra-vermelha'>SIM</span></strong></p></section>";break;
         }
-
         mostraPopUp(true, titulo, mensagem);
         telaFinal = (texto=="final"?true:false);
     }
@@ -129,7 +125,6 @@ $(document).ready(function(){
 let telaFinal = false;
 
 const mostraPopUp = (mostrar, titulo = "Título de testes", mensagem = "Mensagem de teste...") =>{
-
     if(mostrar){
         $("html, body").animate({ scrollTop: $(".pop-up")[0].offsetTop }, "smooth");
         $(".pop-up").fadeIn(500);
@@ -139,7 +134,6 @@ const mostraPopUp = (mostrar, titulo = "Título de testes", mensagem = "Mensagem
     }else{
         $(".pop-up").fadeOut(500);
         $(".container").css("opacity", "1");
-
         if(telaFinal){
             $("#tela19").fadeOut(4000);
             setTimeout(() => {
