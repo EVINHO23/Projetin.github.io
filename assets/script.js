@@ -134,3 +134,37 @@ const mostraPopUp = (mostrar, titulo = "Título de testes", mensagem = "Mensagem
     }
 
 }
+// --- Código novo para o pedido de perdão ---
+
+// Pega os botões da nova tela
+const btnSim = document.getElementById('btnSim');
+const btnNao = document.getElementById('btnNao');
+
+// Adiciona o evento para o botão 'Sim'
+btnSim.addEventListener('click', function() {
+    // Esconde a tela atual (tela 12)
+    document.getElementById('tela12').classList.remove('visivel');
+    
+    // Mostra a tela final feliz (tela 13)
+    let telaFinal = document.getElementById('tela13');
+    telaFinal.classList.add('visivel');
+
+    // Troca o fundo da página, se houver um fundo definido na tela
+    if (telaFinal.getAttribute('fundo')) {
+        document.body.className = ''; // Limpa classes de fundo antigas
+        document.body.classList.add(telaFinal.getAttribute('fundo'));
+    }
+});
+
+// Adiciona o evento para o botão 'Não' fugir
+btnNao.addEventListener('mouseover', function() {
+    // Gera uma posição aleatória na tela
+    let newX = Math.random() * (window.innerWidth - 100);
+    let newY = Math.random() * (window.innerHeight - 100);
+    
+    // Aplica a nova posição ao botão
+    btnNao.style.left = newX + 'px';
+    btnNao.style.top = newY + 'px';
+});
+
+// --- Fim do código novo ---
