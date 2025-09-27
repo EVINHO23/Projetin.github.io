@@ -131,9 +131,7 @@ const mostraPopUp = (mostrar, titulo = "Título de testes", mensagem = "Mensagem
             }, 4000);
         }
 
-    }
 
-}
 // --- Código novo para o pedido de perdão ---
 
 // Pega os botões da nova tela
