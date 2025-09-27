@@ -213,4 +213,10 @@ img{
 }
 .pop-up h1, .pop-up button{
     text-align: center;
+
+}
+#btnNao {
+    position: absolute;
+    transition: all 0.3s ease;
+
 }
