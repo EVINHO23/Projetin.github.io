@@ -1,6 +1,6 @@
 $(document).ready(function(){
 
-    // Usando o método de clique mais robusto para garantir que os botões sempre funcionem.
+    // Mantendo o método de clique robusto
     $(document).on("click", ".mudaTela", function(){
         mudaTela( $(this) );
     });
@@ -15,7 +15,7 @@ $(document).ready(function(){
         mostraMsgMes($(this).attr("value"));
     });
 
-    // Função principal de mudança de tela
+    // Função de mudança de tela (acionada por cliques)
     const mudaTela = ( atual ) => {
         let animacao = atual.attr("animacao") || "fade";
         let tempoAnimacao = atual.attr("tempoAnimacao") || 900;
@@ -58,7 +58,7 @@ $(document).ready(function(){
     }
 
     // ====================================================================================
-    // FUNÇÃO TELA TEMPORIZADA (COM A CORREÇÃO PARA AVANÇAR CORRETAMENTE)
+    // FUNÇÃO TELA TEMPORIZADA (COM A CORREÇÃO FINAL E MAIS DIRETA)
     // ====================================================================================
     const telaTemporizada = ( nTela, contador ) =>{
         const tela = $("#tela"+nTela+" div:eq("+contador+")");
@@ -72,24 +72,26 @@ $(document).ready(function(){
                 tela.fadeOut(temporizador);
                 if(tela.attr("final") == "true"){
                     
-                    let proximaTelaId = tela.attr("proximaTela");
+                    let proximaTelaIdAttr = tela.attr("proximaTela");
+                    let idTelaDestino;
 
-                    if (proximaTelaId) {
-                        // Se a div final tem um destino específico (ex: pular da tela 13 para a 20)
-                        $("#tela" + nTela).fadeOut(900);
-                        setTimeout(() => {
-                            $("#" + proximaTelaId).fadeIn(900);
-                            verificaFundo(parseInt(proximaTelaId.split("tela")[1]));
-                        }, 900);
+                    if (proximaTelaIdAttr) {
+                        // Caso especial: pular da tela 13 para a 20
+                        idTelaDestino = proximaTelaIdAttr;
                     } else {
-                        // CORREÇÃO: Cria um "botão fantasma" para chamar a função principal de transição
-                        // Isso garante que a transição da tela7 para a tela8 funcione.
-                        let botaoFantasma = $('<button class="mudaTela"></button>');
-                        botaoFantasma.appendTo("#tela" + nTela); // Adiciona o botão à tela atual
-                        mudaTela(botaoFantasma); // Chama a função principal
+                        // Caso normal: ir para a próxima tela (ex: da 7 para a 8)
+                        idTelaDestino = "tela" + (nTela + 1);
                     }
+                    
+                    // LÓGICA DE TRANSIÇÃO DIRETA:
+                    // Esconde a tela atual e mostra a próxima sem chamar outra função.
+                    $("#tela" + nTela).fadeOut(900);
+                    setTimeout(() => {
+                        $("#" + idTelaDestino).fadeIn(900);
+                        verificaFundo(parseInt(idTelaDestino.split("tela")[1]));
+                    }, 900);
 
-                }else{
+                } else {
                     telaTemporizada(nTela, contador+1);
                 }
             }, tela.attr("tempo") );
@@ -111,4 +113,4 @@ $(document).ready(function(){
             case "5/5": titulo = "05 de Maio de 2021"; mensagem = "<p>Esse foi o dia que nos conhecemos! Ou pelo menos, o dia que nos conhecemos já sabendo que dali pra frente poderiamos ter alguma coisa juntos.</p><p>Foi bem rápido, você estava atrasada para o serviço (normal) e conversamos tão pouquinho, mas já foi o suficiente para eu entender naquele momento que você era diferente, e que todo o tempo que eu dedicava em escrever minhas mensanges pra você, estavam valendo a pena. Eu quis de verdade, a partir desse dia, te conhecer melhor do que já conhecia por mensagens.</p><p>E eu estava certo, você é incrível!</p>";break;
             case "8/5": titulo = "08 de Maio de 2021"; mensagem = "<p>Foi o primeiro dia que saímos.<br>Você estava linda, usando um contorno branco nos olhos e batom rosa bem claro.</p><p>Sentamos em um banco na lagoa e a todo momento eu ainda não conseguia acreditar que estava ali com você, você estava incrível e aquele momento foi mágico pra mim, e tive a certeza disso depois de poder finally te beijar de verdade! E que beijo bom ❤️</p>";break;
             case "15/5": titulo = "15 de Maio de 2021"; mensagem = "<p>Foi quando te vi com os cabelos cacheados, nesse dia você estava usando lápis puxado nas pontas. Repetimos o mesmo processo da semana anterior. Saímos, bebemos um pouco e procuramos um lugar para ficarmos mais a vontade, acabamos encontrando aquela casa no final do bairro Muraiaishi. Foi quando fomos pra sua casa pela primeira vez.</p><p>Eu já te contei que acho que as escadas da sua casa parecidas com a de um castelo?</p>";break;
-            case "22/5": titulo = "22 de Maio de 2021"; mensagem = "<p>Lembro que eu fiquei o dia todo pensando em algum lugar para que pudessemos sair e ficarmos sozinhos sem ser na lagoa, pois embora estar com você fosse incrível, eu não queria que tudo se transformasse em uma rotina monótona. Sou
+            case "22/5": titulo = "22 de Maio
