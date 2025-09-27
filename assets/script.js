@@ -1,10 +1,18 @@
-confirm("Are you sure you want to delete?")
 $(document).ready(function(){
 
+    // Clique para os botões normais (que avançam para a próxima tela)
     $(".mudaTela").click(function(){
-        mudaTela( $(this), $(this).attr("nova"), $(this).attr("animacao"), $(this).attr("tempoAnimacao") );
+        mudaTela( $(this) );
     });
 
+    // Clique para os botões especiais (que pulam para telas específicas)
+    $(".mudaTelaEspecial").click(function(){
+        let telaAtualId = $(this).closest(".tela").attr("id");
+        let proximaTelaId = $(this).attr("proximaTela");
+        mudaTelaEspecifica(telaAtualId, proximaTelaId);
+    });
+
+    // Seu código original
     $("a.opcoes").click(function(e){
         e.preventDefault();
         $("div.opcoes").slideToggle(500);
@@ -14,28 +22,26 @@ $(document).ready(function(){
         mostraMsgMes($(this).attr("value"));
     });
 
-    const mudaTela = ( atual, nova = null, animacao = "fade", tempoAnimacao = 900 ) => {
-
-        // define a nova tela
-        if(!nova){
-            nova = parseInt(atual.parent().attr("id").split("tela")[1])+1;
-        }
+    // Sua função original, agora mais simples
+    const mudaTela = ( atual ) => {
+        let animacao = atual.attr("animacao") || "fade";
+        let tempoAnimacao = atual.attr("tempoAnimacao") || 900;
+        let telaAtualId = atual.parent().attr("id");
+        let nova = parseInt(telaAtualId.split("tela")[1])+1;
 
         if(animacao == "fade"){
-            $("#tela"+(nova-1)).fadeOut(tempoAnimacao);
+            $("#" + telaAtualId).fadeOut(tempoAnimacao);
             setTimeout(() => {
                 $("#tela"+nova).fadeIn(tempoAnimacao)
             }, tempoAnimacao);
         }else{
-            $("#tela"+(nova-1)).hide(tempoAnimacao);
+            $("#" + telaAtualId).hide(tempoAnimacao);
             $("#tela"+nova).show(tempoAnimacao);
         }
-
         if($("#tela"+nova).hasClass("temporizado")){
             $("#tela"+nova+" div").hide();
             telaTemporizada(nova, 0);
         }
-
         verificaFundo(nova);
         $("html, body").animate({ scrollTop: 0 }, "slow");
         if(nova == 5){
@@ -43,49 +49,72 @@ $(document).ready(function(){
             audio.volume = 0.1;
             audio.play();
         }
-        
     }
 
-    const telaTemporizada = ( nTela, contador ) =>{
+    // Função para os botões especiais
+    const mudaTelaEspecifica = (telaAtualId, idTelaDestino) => {
+        const tempoAnimacao = 900;
+        $("#" + telaAtualId).fadeOut(tempoAnimacao);
+        setTimeout(() => {
+            $("#" + idTelaDestino).fadeIn(tempoAnimacao);
+            if ($("#" + idTelaDestino).hasClass("temporizado")) {
+                $("#" + idTelaDestino + " div").hide();
+                telaTemporizada(parseInt(idTelaDestino.split("tela")[1]), 0);
+            }
+            verificaFundo(parseInt(idTelaDestino.split("tela")[1]));
+        }, tempoAnimacao);
+    }
 
-        const tela = $("#tela"+nTela+" div:eq("+contador+")");
-        const temporizador = 500;
-        const temporizadorPrimeiraTela = (contador==0?$("#tela"+nTela).attr("tempo"):temporizador);
+    // Função de tela temporizada, na versão mais segura contra travamentos
+    const telaTemporizada = ( nTela, contador ) =>{
+        let telaContainer = $("#tela" + nTela);
+        let divs = telaContainer.children('div');
+        let divAtual = $(divs[contador]);
+
+        if (!divAtual.length) { return; }
+
+        let tempoDeEspera = (contador === 0) ? parseInt(telaContainer.attr('tempo')) : 500;
+        let tempoVisivel = parseInt(divAtual.attr('tempo'));
 
         setTimeout(() => {
-            tela.fadeIn(temporizador);
+            divAtual.fadeIn(500, function() {
+                setTimeout(() => {
+                    divAtual.fadeOut(500, function() {
+                        if (divAtual.attr('final') === 'true') {
+                            let proximaTelaIdAttr = divAtual.attr("proximaTela");
+                            let idTelaDestino;
 
-            setTimeout(() => {
-                tela.fadeOut(temporizador);
-                if(tela.attr("final") == "true"){
-                    mudaTela(null, nTela+1, "fade", 900);
-                    verificaFundo(nTela+1);
-                }else{
-                    telaTemporizada(nTela, contador+1);
-                }
+                            if (proximaTelaIdAttr) {
+                                idTelaDestino = proximaTelaIdAttr;
+                            } else {
+                                idTelaDestino = "tela" + (nTela + 1);
+                            }
 
-            }, tela.attr("tempo") );
-
-        }, temporizadorPrimeiraTela);
-        
+                            telaContainer.fadeOut(900);
+                            setTimeout(() => {
+                                $("#" + idTelaDestino).fadeIn(900);
+                                verificaFundo(parseInt(idTelaDestino.split("tela")[1]));
+                            }, 900);
+                        } else {
+                            telaTemporizada(nTela, contador + 1);
+                        }
+                    });
+                }, tempoVisivel);
+            });
+        }, tempoDeEspera);
     }
-
+    
+    // Seu código original
     const verificaFundo = (nTela) =>{
-
         const fundo = $("#tela"+nTela).attr("fundo");
-        const tempo = $("#tela"+nTela).attr("tempo");
-
         if(fundo){
             $("body").attr("class", fundo);            
         }
-        
     }
-
+    
     const mostraMsgMes = (texto) =>{
-
         let titulo;
         let mensagem;
-
         switch(texto){
             case "5/5": titulo = "05 de Maio de 2021"; mensagem = "<p>Esse foi o dia que nos conhecemos! Ou pelo menos, o dia que nos conhecemos já sabendo que dali pra frente poderiamos ter alguma coisa juntos.</p><p>Foi bem rápido, você estava atrasada para o serviço (normal) e conversamos tão pouquinho, mas já foi o suficiente para eu entender naquele momento que você era diferente, e que todo o tempo que eu dedicava em escrever minhas mensanges pra você, estavam valendo a pena. Eu quis de verdade, a partir desse dia, te conhecer melhor do que já conhecia por mensagens.</p><p>E eu estava certo, você é incrível!</p>";break;
             case "8/5": titulo = "08 de Maio de 2021"; mensagem = "<p>Foi o primeiro dia que saímos.<br>Você estava linda, usando um contorno branco nos olhos e batom rosa bem claro.</p><p>Sentamos em um banco na lagoa e a todo momento eu ainda não conseguia acreditar que estava ali com você, você estava incrível e aquele momento foi mágico pra mim, e tive a certeza disso depois de poder finalmente te beijar de verdade! E que beijo bom ❤️</p>";break;
@@ -99,19 +128,14 @@ $(document).ready(function(){
             case "19/6": titulo = "19 de Junho de 2021"; mensagem = "<section class='text-center'><p class='letra-vermelha'><strong>Este momento está sendo escrito agora...</strong></p></section>";break;
             case "final": titulo = "19 de Junho de 2021"; mensagem = "<section class='text-center mt-5 mb-5'><p><strong>O dia em que ela disse<br><span class='letra2 letra-vermelha'>SIM</span></strong></p></section>";break;
         }
-
         mostraPopUp(true, titulo, mensagem);
         telaFinal = (texto=="final"?true:false);
     }
-
-    
-
 });
 
 let telaFinal = false;
 
 const mostraPopUp = (mostrar, titulo = "Título de testes", mensagem = "Mensagem de teste...") =>{
-
     if(mostrar){
         $("html, body").animate({ scrollTop: $(".pop-up")[0].offsetTop }, "smooth");
         $(".pop-up").fadeIn(500);
@@ -121,7 +145,6 @@ const mostraPopUp = (mostrar, titulo = "Título de testes", mensagem = "Mensagem
     }else{
         $(".pop-up").fadeOut(500);
         $(".container").css("opacity", "1");
-
         if(telaFinal){
             $("#tela19").fadeOut(4000);
             setTimeout(() => {
@@ -130,3 +153,5 @@ const mostraPopUp = (mostrar, titulo = "Título de testes", mensagem = "Mensagem
                 $("html, body").animate({ scrollTop: 0 }, "slow");
             }, 4000);
         }
+    }
+}
