@@ -1,7 +1,7 @@
 $(document).ready(function(){
 
     $(".mudaTela").click(function(){
-        mudaTela( $(this) ); // Simplifiquei a chamada aqui
+        mudaTela( $(this), $(this).attr("nova"), $(this).attr("animacao"), $(this).attr("tempoAnimacao") );
     });
 
     $("a.opcoes").click(function(e){
@@ -13,57 +13,53 @@ $(document).ready(function(){
         mostraMsgMes($(this).attr("value"));
     });
 
-    // =========================================================================
-    // FUNÇÃO MUDA TELA - VERSÃO ATUALIZADA
-    // =========================================================================
-    const mudaTela = ( atual ) => {
-        
-        let animacao = atual.attr("animacao") || "fade";
-        let tempoAnimacao = atual.attr("tempoAnimacao") || 900;
-        let telaAtualId = atual.parent().attr("id");
-        let proximaTelaId = atual.attr("proximaTela");
+    const mudaTela = ( atual, nova = null, animacao = "fade", tempoAnimacao = 900 ) => {
 
-        // define a nova tela
-        if(proximaTelaId){
-            nova = proximaTelaId; // Usa o ID do atributo se ele existir
+        let telaAtualId = atual.parent().attr("id");
+        let proximaTelaId = atual.attr("proximaTela"); 
+
+        let idTelaDestino;
+        let numeroTelaDestino;
+
+        if (proximaTelaId) {
+            idTelaDestino = proximaTelaId;
         } else {
-            // Lógica original para pegar a próxima tela sequencial
-            nova = "tela" + (parseInt(telaAtualId.split("tela")[1]) + 1);
+            let numeroTelaAtual = parseInt(telaAtualId.split("tela")[1]);
+            idTelaDestino = "tela" + (numeroTelaAtual + 1);
         }
+
+        numeroTelaDestino = parseInt(idTelaDestino.split("tela")[1]);
 
         if(animacao == "fade"){
-            $("#"+telaAtualId).fadeOut(tempoAnimacao);
+            $("#" + telaAtualId).fadeOut(tempoAnimacao);
             setTimeout(() => {
-                $("#"+nova).fadeIn(tempoAnimacao);
+                $("#" + idTelaDestino).fadeIn(tempoAnimacao)
             }, tempoAnimacao);
         }else{
-            $("#"+telaAtualId).hide(tempoAnimacao);
-            $("#"+nova).show(tempoAnimacao);
-        }
-        
-        if($("#"+nova).hasClass("temporizado")){
-            $("#"+nova+" div").hide();
-            telaTemporizada(nova, 0);
+            $("#" + telaAtualId).hide(tempoAnimacao);
+            $("#" + idTelaDestino).show(tempoAnimacao);
         }
 
-        verificaFundo(nova);
+        if($("#" + idTelaDestino).hasClass("temporizado")){
+            $("#" + idTelaDestino + " div").hide();
+            telaTemporizada(numeroTelaDestino, 0);
+        }
+
+        verificaFundo(numeroTelaDestino);
         $("html, body").animate({ scrollTop: 0 }, "slow");
-        
-        if(nova == "tela5"){
+        if(numeroTelaDestino == 5){
             var audio = new Audio('assets/musica.mp3');
             audio.volume = 0.1;
             audio.play();
         }
+        
     }
 
-    // =========================================================================
-    // FUNÇÃO TELA TEMPORIZADA - VERSÃO ATUALIZADA
-    // =========================================================================
     const telaTemporizada = ( nTela, contador ) =>{
 
-        const tela = $("#" + nTela + " div:eq(" + contador + ")");
+        const tela = $("#tela"+nTela+" div:eq("+contador+")");
         const temporizador = 500;
-        const temporizadorPrimeiraTela = (contador == 0 ? $("#" + nTela).attr("tempo") : temporizador);
+        const temporizadorPrimeiraTela = (contador==0?$("#tela"+nTela).attr("tempo"):temporizador);
 
         setTimeout(() => {
             tela.fadeIn(temporizador);
@@ -72,42 +68,38 @@ $(document).ready(function(){
                 tela.fadeOut(temporizador);
                 if(tela.attr("final") == "true"){
                     
-                    let proximaTelaId = tela.attr("proximaTela");
-                    
-                    if (proximaTelaId) {
-                        // Chama a transição para a tela específica (ex: de tela13 para tela20)
-                        let telaDestino = $("#" + proximaTelaId);
-                        $("#" + nTela).fadeOut(900);
-                        setTimeout(() => {
-                            telaDestino.fadeIn(900);
-                            verificaFundo(proximaTelaId);
-                        }, 900);
+                    let proximaTelaId = tela.attr("proximaTela"); 
 
-                    } else {
-                        // Lógica original para pular para a próxima tela sequencial
-                        let nTelaNumero = parseInt(nTela.split("tela")[1]);
-                        let proximaSequencial = "tela" + (nTelaNumero + 1);
-                         $("#" + nTela).fadeOut(900);
+                    if (proximaTelaId) {
+                        $("#tela" + nTela).fadeOut(900);
                         setTimeout(() => {
-                            $("#" + proximaSequencial).fadeIn(900);
-                            verificaFundo(proximaSequencial);
+                            $("#" + proximaTelaId).fadeIn(900);
+                            verificaFundo(parseInt(proximaTelaId.split("tela")[1]));
                         }, 900);
+                    } else {
+                        mudaTela(tela, nTela+1, "fade", 900);
+                        verificaFundo(nTela+1);
                     }
 
-                } else {
-                    telaTemporizada(nTela, contador + 1);
+                }else{
+                    telaTemporizada(nTela, contador+1);
                 }
 
             }, tela.attr("tempo") );
 
         }, temporizadorPrimeiraTela);
+        
     }
 
     const verificaFundo = (nTela) =>{
-        const fundo = $("#"+nTela).attr("fundo");
+
+        const fundo = $("#tela"+nTela).attr("fundo");
+        const tempo = $("#tela"+nTela).attr("tempo");
+
         if(fundo){
             $("body").attr("class", fundo);            
         }
+        
     }
 
     const mostraMsgMes = (texto) =>{
@@ -132,29 +124,29 @@ $(document).ready(function(){
         mostraPopUp(true, titulo, mensagem);
         telaFinal = (texto=="final"?true:false);
     }
+});
 
-    let telaFinal = false;
+let telaFinal = false;
 
-    const mostraPopUp = (mostrar, titulo = "Título de testes", mensagem = "Mensagem de teste...") =>{
+const mostraPopUp = (mostrar, titulo = "Título de testes", mensagem = "Mensagem de teste...") =>{
 
-        if(mostrar){
-            $("html, body").animate({ scrollTop: $(".pop-up")[0].offsetTop }, "smooth");
-            $(".pop-up").fadeIn(500);
-            $(".pop-up h1").html(titulo);
-            $(".pop-up div").html(mensagem);
-            $(".container").css("opacity", "0.5");
-        }else{
-            $(".pop-up").fadeOut(500);
-            $(".container").css("opacity", "1");
+    if(mostrar){
+        $("html, body").animate({ scrollTop: $(".pop-up")[0].offsetTop }, "smooth");
+        $(".pop-up").fadeIn(500);
+        $(".pop-up h1").html(titulo);
+        $(".pop-up div").html(mensagem);
+        $(".container").css("opacity", "0.5");
+    }else{
+        $(".pop-up").fadeOut(500);
+        $(".container").css("opacity", "1");
 
-            if(telaFinal){
-                $("#tela19").fadeOut(4000);
-                setTimeout(() => {
-                    $("#tela20").fadeIn(6500);
-                    $("body").attr("class", "fundo6");    
-                    $("html, body").animate({ scrollTop: 0 }, "slow");
-                }, 4000);
-            }
+        if(telaFinal){
+            $("#tela19").fadeOut(4000);
+            setTimeout(() => {
+                $("#tela20").fadeIn(6500);
+                $("body").attr("class", "fundo6");    
+                $("html, body").animate({ scrollTop: 0 }, "slow");
+            }, 4000);
         }
     }
-});
+}
