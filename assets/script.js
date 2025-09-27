@@ -1,18 +1,20 @@
+// CÓDIGO CONSOLIDADO E FINAL
 $(document).ready(function(){
 
-    // SEU CÓDIGO DE CLIQUE ORIGINAL - INTACTO
+    // --- VARIÁVEIS GLOBAIS DO SCRIPT ---
+    let telaFinal = false;
+
+    // --- EVENTOS DE CLIQUE ---
     $(".mudaTela").click(function(){
         mudaTela( $(this), $(this).attr("nova"), $(this).attr("animacao"), $(this).attr("tempoAnimacao") );
     });
 
-    // NOVO clique SÓ para os botões de perdão (com a classe "mudaTelaEspecial")
     $(".mudaTelaEspecial").click(function(){
         let telaAtualId = $(this).closest(".tela").attr("id");
         let proximaTelaId = $(this).attr("proximaTela");
         mudaTelaEspecifica(telaAtualId, proximaTelaId);
     });
 
-    // SEU CÓDIGO ORIGINAL - INTACTO
     $("a.opcoes").click(function(e){
         e.preventDefault();
         $("div.opcoes").slideToggle(500);
@@ -22,90 +24,35 @@ $(document).ready(function(){
         mostraMsgMes($(this).attr("value"));
     });
 
-    // SUA FUNÇÃO ORIGINAL - INTACTA
-    const mudaTela = ( atual, nova = null, animacao = "fade", tempoAnimacao = 900 ) => {
-        if(!nova){
-            nova = parseInt(atual.parent().attr("id").split("tela")[1])+1;
-        }
-        if(animacao == "fade"){
-            $("#tela"+(nova-1)).fadeOut(tempoAnimacao);
-            setTimeout(() => {
-                $("#tela"+nova).fadeIn(tempoAnimacao)
-            }, tempoAnimacao);
-        }else{
-            $("#tela"+(nova-1)).hide(tempoAnimacao);
-            $("#tela"+nova).show(tempoAnimacao);
-        }
-        if($("#tela"+nova).hasClass("temporizado")){
-            $("#tela"+nova+" div").hide();
-            telaTemporizada(nova, 0);
-        }
-        verificaFundo(nova);
-        $("html, body").animate({ scrollTop: 0 }, "slow");
-        if(nova == 5){
-            var audio = new Audio('assets/musica.mp3');
-            audio.volume = 0.1;
-            audio.play();
-        }
-    }
+    // CORREÇÃO: Evento de clique para o botão fechar do pop-up
+    $("#fecharPopUp").click(function(){
+        mostraPopUp(false);
+    });
 
-    // FUNÇÃO TELA TEMPORIZADA - CORRIGIDA (a única parte que realmente precisava mudar)
-    const telaTemporizada = ( nTela, contador ) =>{
-        const tela = $("#tela"+nTela+" div:eq("+contador+")");
-        const temporizador = 500;
-        const temporizadorPrimeiraTela = (contador==0?$("#tela"+nTela).attr("tempo"):temporizador);
+    // --- DEFINIÇÃO DAS FUNÇÕES ---
 
-        setTimeout(() => {
-            tela.fadeIn(temporizador);
-            setTimeout(() => {
-                tela.fadeOut(temporizador);
-                if(tela.attr("final") == "true"){
-                    let proximaTelaIdAttr = tela.attr("proximaTela");
-                    let idTelaDestino;
-
-                    if (proximaTelaIdAttr) {
-                        idTelaDestino = proximaTelaIdAttr;
-                    } else {
-                        idTelaDestino = "tela" + (nTela + 1);
-                    }
-                    
-                    $("#tela" + nTela).fadeOut(900);
-                    setTimeout(() => {
-                        $("#" + idTelaDestino).fadeIn(900);
-                        verificaFundo(parseInt(idTelaDestino.split("tela")[1]));
-                    }, 900);
-
-                } else {
-                    telaTemporizada(nTela, contador+1);
-                }
-            }, tela.attr("tempo") );
-        }, temporizadorPrimeiraTela);
-    }
-    
-    // SEU CÓDIGO ORIGINAL - INTACTO
-    const verificaFundo = (nTela) =>{
-        const fundo = $("#tela"+nTela).attr("fundo");
-        if(fundo){
-            $("body").attr("class", fundo);            
-        }
-    }
-
-    // NOVA FUNÇÃO para os botões especiais (não interfere com a sua)
-    const mudaTelaEspecifica = (telaAtualId, idTelaDestino) => {
-        const tempoAnimacao = 900;
-        $("#" + telaAtualId).fadeOut(tempoAnimacao);
-        setTimeout(() => {
-            $("#" + idTelaDestino).fadeIn(tempoAnimacao);
-            if ($("#" + idTelaDestino).hasClass("temporizado")) {
-                $("#" + idTelaDestino + " div").hide();
-                telaTemporizada(parseInt(idTelaDestino.split("tela")[1]), 0);
+    const mostraPopUp = (mostrar, titulo = "Título de testes", mensagem = "Mensagem de teste...") => {
+        if(mostrar){
+            $("html, body").animate({ scrollTop: $(".pop-up")[0].offsetTop }, "smooth");
+            $(".pop-up").fadeIn(500);
+            $(".pop-up h1").html(titulo);
+            $(".pop-up div:first").html(mensagem); // Seletor mais específico para evitar conflitos
+            $(".container").css("opacity", "0.5");
+        } else {
+            $(".pop-up").fadeOut(500);
+            $(".container").css("opacity", "1");
+            if(telaFinal){
+                $("#tela19").fadeOut(4000);
+                setTimeout(() => {
+                    $("#tela20").fadeIn(6500);
+                    $("body").attr("class", "fundo6");    
+                    $("html, body").animate({ scrollTop: 0 }, "slow");
+                }, 4000);
             }
-            verificaFundo(parseInt(idTelaDestino.split("tela")[1]));
-        }, tempoAnimacao);
+        }
     }
-    
-    // SEU CÓDIGO ORIGINAL - INTACTO
-    const mostraMsgMes = (texto) =>{
+
+    const mostraMsgMes = (texto) => {
         let titulo;
         let mensagem;
         switch(texto){
@@ -122,29 +69,100 @@ $(document).ready(function(){
             case "final": titulo = "19 de Junho de 2021"; mensagem = "<section class='text-center mt-5 mb-5'><p><strong>O dia em que ela disse<br><span class='letra2 letra-vermelha'>SIM</span></strong></p></section>";break;
         }
         mostraPopUp(true, titulo, mensagem);
-        telaFinal = (texto=="final"?true:false);
+        telaFinal = (texto === "final");
     }
-});
 
-let telaFinal = false;
-
-const mostraPopUp = (mostrar, titulo = "Título de testes", mensagem = "Mensagem de teste...") =>{
-    if(mostrar){
-        $("html, body").animate({ scrollTop: $(".pop-up")[0].offsetTop }, "smooth");
-        $(".pop-up").fadeIn(500);
-        $(".pop-up h1").html(titulo);
-        $(".pop-up div").html(mensagem);
-        $(".container").css("opacity", "0.5");
-    }else{
-        $(".pop-up").fadeOut(500);
-        $(".container").css("opacity", "1");
-        if(telaFinal){
-            $("#tela19").fadeOut(4000);
-            setTimeout(() => {
-                $("#tela20").fadeIn(6500);
-                $("body").attr("class", "fundo6");    
-                $("html, body").animate({ scrollTop: 0 }, "slow");
-            }, 4000);
+    const verificaFundo = (nTela) => {
+        const fundo = $("#tela"+nTela).attr("fundo");
+        if(fundo){
+            $("body").attr("class", fundo);            
         }
     }
-}
+
+    const telaTemporizada = ( nTela, contador ) => {
+        const tela = $("#tela"+nTela+" div:eq("+contador+")");
+        const temporizador = 500;
+        const temporizadorPrimeiraTela = (contador === 0 ? $("#tela"+nTela).attr("tempo") : temporizador);
+
+        setTimeout(() => {
+            tela.fadeIn(temporizador);
+            setTimeout(() => {
+                tela.fadeOut(temporizador);
+                if(tela.attr("final") === "true"){
+                    let proximaTelaIdAttr = tela.attr("proximaTela");
+                    let idTelaDestino;
+
+                    if (proximaTelaIdAttr) {
+                        idTelaDestino = proximaTelaIdAttr;
+                    } else {
+                        idTelaDestino = "tela" + (nTela + 1);
+                    }
+                    
+                    $("#tela" + nTela).fadeOut(900);
+                    setTimeout(() => {
+                        $("#" + idTelaDestino).fadeIn(900);
+                        let proximoNumeroTela = parseInt(idTelaDestino.replace("tela", ""));
+                        if (!isNaN(proximoNumeroTela)) {
+                            verificaFundo(proximoNumeroTela);
+                        }
+                    }, 900);
+
+                } else {
+                    telaTemporizada(nTela, contador + 1);
+                }
+            }, tela.attr("tempo") );
+        }, temporizadorPrimeiraTela);
+    }
+
+    const mudaTela = ( atual, nova = null, animacao = "fade", tempoAnimacao = 900 ) => {
+        let numeroTelaAtual;
+        let parentId = atual.parent().attr("id");
+
+        if (nova) {
+            numeroTelaAtual = nova - 1;
+        } else {
+            numeroTelaAtual = parseInt(parentId.split("tela")[1]);
+            nova = numeroTelaAtual + 1;
+        }
+
+        if(animacao === "fade"){
+            $("#tela" + numeroTelaAtual).fadeOut(tempoAnimacao);
+            setTimeout(() => {
+                $("#tela"+nova).fadeIn(tempoAnimacao)
+            }, tempoAnimacao);
+        } else {
+            $("#tela" + numeroTelaAtual).hide(tempoAnimacao);
+            $("#tela"+nova).show(tempoAnimacao);
+        }
+
+        if($("#tela"+nova).hasClass("temporizado")){
+            $("#tela"+nova+" div").hide();
+            telaTemporizada(nova, 0);
+        }
+        verificaFundo(nova);
+        $("html, body").animate({ scrollTop: 0 }, "slow");
+
+        if(nova == 5){
+            var audio = new Audio('assets/musica.mp3');
+            audio.volume = 0.1;
+            audio.play();
+        }
+    }
+
+    const mudaTelaEspecifica = (telaAtualId, idTelaDestino) => {
+        const tempoAnimacao = 900;
+        $("#" + telaAtualId).fadeOut(tempoAnimacao);
+        setTimeout(() => {
+            $("#" + idTelaDestino).fadeIn(tempoAnimacao);
+            let numeroTelaDestino = parseInt(idTelaDestino.replace("tela", ""));
+            if ($("#" + idTelaDestino).hasClass("temporizado")) {
+                $("#" + idTelaDestino + " div").hide();
+                telaTemporizada(numeroTelaDestino, 0);
+            }
+            if (!isNaN(numeroTelaDestino)) {
+                verificaFundo(numeroTelaDestino);
+            }
+        }, tempoAnimacao);
+    }
+
+});
