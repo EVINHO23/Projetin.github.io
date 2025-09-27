@@ -1,21 +1,18 @@
-$(document).ready(function(){
+$(document-ready(function(){
 
-    // SEU CÓDIGO DE CLIQUE ORIGINAL - INTACTO
+    // SEU MÉTODO DE CLIQUE ORIGINAL, QUE JÁ FUNCIONA.
     $(".mudaTela").click(function(){
         mudaTela( $(this), $(this).attr("nova"), $(this).attr("animacao"), $(this).attr("tempoAnimacao") );
     });
 
-    // ====================================================================================
-    // NOVO CÓDIGO DE CLIQUE - APENAS PARA OS BOTÕES ESPECIAIS DA TELA DE PERDÃO
-    // ====================================================================================
+    // Clique para os botões especiais (da tela de perdão)
     $(".mudaTelaEspecial").click(function(){
         let telaAtualId = $(this).closest(".tela").attr("id");
         let proximaTelaId = $(this).attr("proximaTela");
         mudaTelaEspecifica(telaAtualId, proximaTelaId);
     });
-    // ====================================================================================
 
-    // SEU CÓDIGO ORIGINAL - INTACTO
+    // SEU CÓDIGO ORIGINAL (continuação)
     $("a.opcoes").click(function(e){
         e.preventDefault();
         $("div.opcoes").slideToggle(500);
@@ -25,7 +22,7 @@ $(document).ready(function(){
         mostraMsgMes($(this).attr("value"));
     });
 
-    // SUA FUNÇÃO ORIGINAL - INTACTA
+    // SUA FUNÇÃO ORIGINAL, SEM ALTERAÇÕES
     const mudaTela = ( atual, nova = null, animacao = "fade", tempoAnimacao = 900 ) => {
         if(!nova){
             nova = parseInt(atual.parent().attr("id").split("tela")[1])+1;
@@ -53,52 +50,66 @@ $(document).ready(function(){
     }
 
     // ====================================================================================
-    // FUNÇÃO TELA TEMPORIZADA - CORRIGIDA PARA NÃO TRAVAR
+    // FUNÇÃO TELA TEMPORIZADA - VERSÃO NOVA E ROBUSTA PARA EVITAR TRAVAMENTOS
     // ====================================================================================
     const telaTemporizada = ( nTela, contador ) =>{
-        const tela = $("#tela"+nTela+" div:eq("+contador+")");
-        const temporizador = 500;
-        const temporizadorPrimeiraTela = (contador==0?$("#tela"+nTela).attr("tempo"):temporizador);
+        let telaContainer = $("#tela" + nTela);
+        let divs = telaContainer.children('div'); // Pega todos os 'blocos' de texto
+        let divAtual = $(divs[contador]);
 
+        // Se não houver mais blocos de texto, a função para.
+        if (!divAtual.length) {
+            return;
+        }
+
+        let tempoDeEspera = (contador === 0) ? parseInt(telaContainer.attr('tempo')) : 500;
+        let tempoVisivel = parseInt(divAtual.attr('tempo'));
+
+        // 1. Espera um pouco antes de mostrar o texto
         setTimeout(() => {
-            tela.fadeIn(temporizador);
-            setTimeout(() => {
-                tela.fadeOut(temporizador);
-                if(tela.attr("final") == "true"){
-                    let proximaTelaIdAttr = tela.attr("proximaTela");
-                    let idTelaDestino;
+            // 2. Mostra o texto
+            divAtual.fadeIn(500, function() {
+                // 3. Depois que o texto apareceu, espera ele ser lido
+                setTimeout(() => {
+                    // 4. Esconde o texto
+                    divAtual.fadeOut(500, function() {
+                        // 5. DEPOIS que o texto sumiu, verifica se é o último
+                        if (divAtual.attr('final') === 'true') {
+                            // É o último! Prepara para mudar de tela.
+                            let proximaTelaIdAttr = divAtual.attr("proximaTela");
+                            let idTelaDestino;
 
-                    if (proximaTelaIdAttr) {
-                        idTelaDestino = proximaTelaIdAttr; // Para o pulo da tela 13 -> 20
-                    } else {
-                        idTelaDestino = "tela" + (nTela + 1); // Para o avanço da tela 7 -> 8
-                    }
-                    
-                    $("#tela" + nTela).fadeOut(900);
-                    setTimeout(() => {
-                        $("#" + idTelaDestino).fadeIn(900);
-                        verificaFundo(parseInt(idTelaDestino.split("tela")[1]));
-                    }, 900);
+                            if (proximaTelaIdAttr) {
+                                idTelaDestino = proximaTelaIdAttr; // Pula para tela específica (ex: 20)
+                            } else {
+                                idTelaDestino = "tela" + (nTela + 1); // Vai para a próxima tela (ex: 8)
+                            }
 
-                } else {
-                    telaTemporizada(nTela, contador+1);
-                }
-            }, tela.attr("tempo") );
-        }, temporizadorPrimeiraTela);
+                            // Faz a transição de tela
+                            telaContainer.fadeOut(900);
+                            setTimeout(() => {
+                                $("#" + idTelaDestino).fadeIn(900);
+                                verificaFundo(parseInt(idTelaDestino.split("tela")[1]));
+                            }, 900);
+                        } else {
+                            // Não é o último, chama a função para o próximo bloco de texto
+                            telaTemporizada(nTela, contador + 1);
+                        }
+                    });
+                }, tempoVisivel);
+            });
+        }, tempoDeEspera);
     }
     
     // SEU CÓDIGO ORIGINAL - INTACTO
     const verificaFundo = (nTela) =>{
         const fundo = $("#tela"+nTela).attr("fundo");
-        const tempo = $("#tela"+nTela).attr("tempo");
         if(fundo){
             $("body").attr("class", fundo);            
         }
     }
 
-    // ====================================================================================
-    // NOVA FUNÇÃO - APENAS PARA OS BOTÕES ESPECIAIS
-    // ====================================================================================
+    // Função para os botões especiais
     const mudaTelaEspecifica = (telaAtualId, idTelaDestino) => {
         const tempoAnimacao = 900;
         $("#" + telaAtualId).fadeOut(tempoAnimacao);
@@ -111,13 +122,11 @@ $(document).ready(function(){
             verificaFundo(parseInt(idTelaDestino.split("tela")[1]));
         }, tempoAnimacao);
     }
-    // ====================================================================================
-
+    
     // SEU CÓDIGO ORIGINAL - INTACTO
     const mostraMsgMes = (texto) =>{
         let titulo;
         let mensagem;
-        // ... (todo o seu switch case continua aqui, sem alterações)
         switch(texto){
             case "5/5": titulo = "05 de Maio de 2021"; mensagem = "<p>Esse foi o dia que nos conhecemos! Ou pelo menos, o dia que nos conhecemos já sabendo que dali pra frente poderiamos ter alguma coisa juntos.</p><p>Foi bem rápido, você estava atrasada para o serviço (normal) e conversamos tão pouquinho, mas já foi o suficiente para eu entender naquele momento que você era diferente, e que todo o tempo que eu dedicava em escrever minhas mensanges pra você, estavam valendo a pena. Eu quis de verdade, a partir desse dia, te conhecer melhor do que já conhecia por mensagens.</p><p>E eu estava certo, você é incrível!</p>";break;
             case "8/5": titulo = "08 de Maio de 2021"; mensagem = "<p>Foi o primeiro dia que saímos.<br>Você estava linda, usando um contorno branco nos olhos e batom rosa bem claro.</p><p>Sentamos em um banco na lagoa e a todo momento eu ainda não conseguia acreditar que estava ali com você, você estava incrível e aquele momento foi mágico pra mim, e tive a certeza disso depois de poder finalmente te beijar de verdade! E que beijo bom ❤️</p>";break;
