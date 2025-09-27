@@ -1,18 +1,18 @@
 $(document).ready(function(){
 
-    // Clique para os botões normais (que avançam para a próxima tela)
+    // SEU CÓDIGO DE CLIQUE ORIGINAL - INTACTO
     $(".mudaTela").click(function(){
-        mudaTela( $(this) );
+        mudaTela( $(this), $(this).attr("nova"), $(this).attr("animacao"), $(this).attr("tempoAnimacao") );
     });
 
-    // Clique para os botões especiais (que pulam para telas específicas)
+    // NOVO clique SÓ para os botões de perdão (com a classe "mudaTelaEspecial")
     $(".mudaTelaEspecial").click(function(){
         let telaAtualId = $(this).closest(".tela").attr("id");
         let proximaTelaId = $(this).attr("proximaTela");
         mudaTelaEspecifica(telaAtualId, proximaTelaId);
     });
 
-    // Seu código original
+    // SEU CÓDIGO ORIGINAL - INTACTO
     $("a.opcoes").click(function(e){
         e.preventDefault();
         $("div.opcoes").slideToggle(500);
@@ -22,20 +22,18 @@ $(document).ready(function(){
         mostraMsgMes($(this).attr("value"));
     });
 
-    // Sua função original, agora mais simples
-    const mudaTela = ( atual ) => {
-        let animacao = atual.attr("animacao") || "fade";
-        let tempoAnimacao = atual.attr("tempoAnimacao") || 900;
-        let telaAtualId = atual.parent().attr("id");
-        let nova = parseInt(telaAtualId.split("tela")[1])+1;
-
+    // SUA FUNÇÃO ORIGINAL - INTACTA
+    const mudaTela = ( atual, nova = null, animacao = "fade", tempoAnimacao = 900 ) => {
+        if(!nova){
+            nova = parseInt(atual.parent().attr("id").split("tela")[1])+1;
+        }
         if(animacao == "fade"){
-            $("#" + telaAtualId).fadeOut(tempoAnimacao);
+            $("#tela"+(nova-1)).fadeOut(tempoAnimacao);
             setTimeout(() => {
                 $("#tela"+nova).fadeIn(tempoAnimacao)
             }, tempoAnimacao);
         }else{
-            $("#" + telaAtualId).hide(tempoAnimacao);
+            $("#tela"+(nova-1)).hide(tempoAnimacao);
             $("#tela"+nova).show(tempoAnimacao);
         }
         if($("#tela"+nova).hasClass("temporizado")){
@@ -51,7 +49,48 @@ $(document).ready(function(){
         }
     }
 
-    // Função para os botões especiais
+    // FUNÇÃO TELA TEMPORIZADA - CORRIGIDA (a única parte que realmente precisava mudar)
+    const telaTemporizada = ( nTela, contador ) =>{
+        const tela = $("#tela"+nTela+" div:eq("+contador+")");
+        const temporizador = 500;
+        const temporizadorPrimeiraTela = (contador==0?$("#tela"+nTela).attr("tempo"):temporizador);
+
+        setTimeout(() => {
+            tela.fadeIn(temporizador);
+            setTimeout(() => {
+                tela.fadeOut(temporizador);
+                if(tela.attr("final") == "true"){
+                    let proximaTelaIdAttr = tela.attr("proximaTela");
+                    let idTelaDestino;
+
+                    if (proximaTelaIdAttr) {
+                        idTelaDestino = proximaTelaIdAttr;
+                    } else {
+                        idTelaDestino = "tela" + (nTela + 1);
+                    }
+                    
+                    $("#tela" + nTela).fadeOut(900);
+                    setTimeout(() => {
+                        $("#" + idTelaDestino).fadeIn(900);
+                        verificaFundo(parseInt(idTelaDestino.split("tela")[1]));
+                    }, 900);
+
+                } else {
+                    telaTemporizada(nTela, contador+1);
+                }
+            }, tela.attr("tempo") );
+        }, temporizadorPrimeiraTela);
+    }
+    
+    // SEU CÓDIGO ORIGINAL - INTACTO
+    const verificaFundo = (nTela) =>{
+        const fundo = $("#tela"+nTela).attr("fundo");
+        if(fundo){
+            $("body").attr("class", fundo);            
+        }
+    }
+
+    // NOVA FUNÇÃO para os botões especiais (não interfere com a sua)
     const mudaTelaEspecifica = (telaAtualId, idTelaDestino) => {
         const tempoAnimacao = 900;
         $("#" + telaAtualId).fadeOut(tempoAnimacao);
@@ -64,54 +103,8 @@ $(document).ready(function(){
             verificaFundo(parseInt(idTelaDestino.split("tela")[1]));
         }, tempoAnimacao);
     }
-
-    // Função de tela temporizada, na versão mais segura contra travamentos
-    const telaTemporizada = ( nTela, contador ) =>{
-        let telaContainer = $("#tela" + nTela);
-        let divs = telaContainer.children('div');
-        let divAtual = $(divs[contador]);
-
-        if (!divAtual.length) { return; }
-
-        let tempoDeEspera = (contador === 0) ? parseInt(telaContainer.attr('tempo')) : 500;
-        let tempoVisivel = parseInt(divAtual.attr('tempo'));
-
-        setTimeout(() => {
-            divAtual.fadeIn(500, function() {
-                setTimeout(() => {
-                    divAtual.fadeOut(500, function() {
-                        if (divAtual.attr('final') === 'true') {
-                            let proximaTelaIdAttr = divAtual.attr("proximaTela");
-                            let idTelaDestino;
-
-                            if (proximaTelaIdAttr) {
-                                idTelaDestino = proximaTelaIdAttr;
-                            } else {
-                                idTelaDestino = "tela" + (nTela + 1);
-                            }
-
-                            telaContainer.fadeOut(900);
-                            setTimeout(() => {
-                                $("#" + idTelaDestino).fadeIn(900);
-                                verificaFundo(parseInt(idTelaDestino.split("tela")[1]));
-                            }, 900);
-                        } else {
-                            telaTemporizada(nTela, contador + 1);
-                        }
-                    });
-                }, tempoVisivel);
-            });
-        }, tempoDeEspera);
-    }
     
-    // Seu código original
-    const verificaFundo = (nTela) =>{
-        const fundo = $("#tela"+nTela).attr("fundo");
-        if(fundo){
-            $("body").attr("class", fundo);            
-        }
-    }
-    
+    // SEU CÓDIGO ORIGINAL - INTACTO
     const mostraMsgMes = (texto) =>{
         let titulo;
         let mensagem;
