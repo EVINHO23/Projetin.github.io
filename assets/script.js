@@ -1,11 +1,21 @@
 $(document).ready(function(){
 
-    // Usando o método de clique original que já funcionava para você.
+    // SEU CÓDIGO DE CLIQUE ORIGINAL - INTACTO
     $(".mudaTela").click(function(){
-        mudaTela( $(this) );
+        mudaTela( $(this), $(this).attr("nova"), $(this).attr("animacao"), $(this).attr("tempoAnimacao") );
     });
 
-    // Seu código original
+    // ====================================================================================
+    // NOVO CÓDIGO DE CLIQUE - APENAS PARA OS BOTÕES ESPECIAIS DA TELA DE PERDÃO
+    // ====================================================================================
+    $(".mudaTelaEspecial").click(function(){
+        let telaAtualId = $(this).closest(".tela").attr("id");
+        let proximaTelaId = $(this).attr("proximaTela");
+        mudaTelaEspecifica(telaAtualId, proximaTelaId);
+    });
+    // ====================================================================================
+
+    // SEU CÓDIGO ORIGINAL - INTACTO
     $("a.opcoes").click(function(e){
         e.preventDefault();
         $("div.opcoes").slideToggle(500);
@@ -15,49 +25,36 @@ $(document).ready(function(){
         mostraMsgMes($(this).attr("value"));
     });
 
-    // Função de mudança de tela (acionada por cliques)
-    const mudaTela = ( atual ) => {
-        let animacao = atual.attr("animacao") || "fade";
-        let tempoAnimacao = atual.attr("tempoAnimacao") || 900;
-        let telaAtualId = atual.parent().attr("id");
-        let proximaTelaId = atual.attr("proximaTela"); 
-
-        let idTelaDestino;
-
-        if (proximaTelaId) {
-            idTelaDestino = proximaTelaId;
-        } else {
-            let numeroTelaAtual = parseInt(telaAtualId.split("tela")[1]);
-            idTelaDestino = "tela" + (numeroTelaAtual + 1);
+    // SUA FUNÇÃO ORIGINAL - INTACTA
+    const mudaTela = ( atual, nova = null, animacao = "fade", tempoAnimacao = 900 ) => {
+        if(!nova){
+            nova = parseInt(atual.parent().attr("id").split("tela")[1])+1;
         }
-
         if(animacao == "fade"){
-            $("#" + telaAtualId).fadeOut(tempoAnimacao);
+            $("#tela"+(nova-1)).fadeOut(tempoAnimacao);
             setTimeout(() => {
-                $("#" + idTelaDestino).fadeIn(tempoAnimacao);
+                $("#tela"+nova).fadeIn(tempoAnimacao)
             }, tempoAnimacao);
-        } else {
-            $("#" + telaAtualId).hide(tempoAnimacao);
-            $("#" + idTelaDestino).show(tempoAnimacao);
+        }else{
+            $("#tela"+(nova-1)).hide(tempoAnimacao);
+            $("#tela"+nova).show(tempoAnimacao);
         }
-
-        let numeroTelaDestino = parseInt(idTelaDestino.split("tela")[1]);
-
-        if($("#" + idTelaDestino).hasClass("temporizado")){
-            $("#" + idTelaDestino + " div").hide();
-            telaTemporizada(numeroTelaDestino, 0);
+        if($("#tela"+nova).hasClass("temporizado")){
+            $("#tela"+nova+" div").hide();
+            telaTemporizada(nova, 0);
         }
-
-        verificaFundo(numeroTelaDestino);
+        verificaFundo(nova);
         $("html, body").animate({ scrollTop: 0 }, "slow");
-        if(numeroTelaDestino == 5){
+        if(nova == 5){
             var audio = new Audio('assets/musica.mp3');
             audio.volume = 0.1;
             audio.play();
         }
     }
 
-    // Função de tela temporizada com a correção definitiva
+    // ====================================================================================
+    // FUNÇÃO TELA TEMPORIZADA - CORRIGIDA PARA NÃO TRAVAR
+    // ====================================================================================
     const telaTemporizada = ( nTela, contador ) =>{
         const tela = $("#tela"+nTela+" div:eq("+contador+")");
         const temporizador = 500;
@@ -65,21 +62,18 @@ $(document).ready(function(){
 
         setTimeout(() => {
             tela.fadeIn(temporizador);
-
             setTimeout(() => {
                 tela.fadeOut(temporizador);
                 if(tela.attr("final") == "true"){
-                    
                     let proximaTelaIdAttr = tela.attr("proximaTela");
                     let idTelaDestino;
 
                     if (proximaTelaIdAttr) {
-                        idTelaDestino = proximaTelaIdAttr;
+                        idTelaDestino = proximaTelaIdAttr; // Para o pulo da tela 13 -> 20
                     } else {
-                        idTelaDestino = "tela" + (nTela + 1);
+                        idTelaDestino = "tela" + (nTela + 1); // Para o avanço da tela 7 -> 8
                     }
                     
-                    // Lógica de transição direta, sem depender de outras funções
                     $("#tela" + nTela).fadeOut(900);
                     setTimeout(() => {
                         $("#" + idTelaDestino).fadeIn(900);
@@ -92,21 +86,41 @@ $(document).ready(function(){
             }, tela.attr("tempo") );
         }, temporizadorPrimeiraTela);
     }
-
-    // Resto do seu código
+    
+    // SEU CÓDIGO ORIGINAL - INTACTO
     const verificaFundo = (nTela) =>{
         const fundo = $("#tela"+nTela).attr("fundo");
+        const tempo = $("#tela"+nTela).attr("tempo");
         if(fundo){
             $("body").attr("class", fundo);            
         }
     }
 
+    // ====================================================================================
+    // NOVA FUNÇÃO - APENAS PARA OS BOTÕES ESPECIAIS
+    // ====================================================================================
+    const mudaTelaEspecifica = (telaAtualId, idTelaDestino) => {
+        const tempoAnimacao = 900;
+        $("#" + telaAtualId).fadeOut(tempoAnimacao);
+        setTimeout(() => {
+            $("#" + idTelaDestino).fadeIn(tempoAnimacao);
+            if ($("#" + idTelaDestino).hasClass("temporizado")) {
+                $("#" + idTelaDestino + " div").hide();
+                telaTemporizada(parseInt(idTelaDestino.split("tela")[1]), 0);
+            }
+            verificaFundo(parseInt(idTelaDestino.split("tela")[1]));
+        }, tempoAnimacao);
+    }
+    // ====================================================================================
+
+    // SEU CÓDIGO ORIGINAL - INTACTO
     const mostraMsgMes = (texto) =>{
         let titulo;
         let mensagem;
+        // ... (todo o seu switch case continua aqui, sem alterações)
         switch(texto){
             case "5/5": titulo = "05 de Maio de 2021"; mensagem = "<p>Esse foi o dia que nos conhecemos! Ou pelo menos, o dia que nos conhecemos já sabendo que dali pra frente poderiamos ter alguma coisa juntos.</p><p>Foi bem rápido, você estava atrasada para o serviço (normal) e conversamos tão pouquinho, mas já foi o suficiente para eu entender naquele momento que você era diferente, e que todo o tempo que eu dedicava em escrever minhas mensanges pra você, estavam valendo a pena. Eu quis de verdade, a partir desse dia, te conhecer melhor do que já conhecia por mensagens.</p><p>E eu estava certo, você é incrível!</p>";break;
-            case "8/5": titulo = "08 de Maio de 2021"; mensagem = "<p>Foi o primeiro dia que saímos.<br>Você estava linda, usando um contorno branco nos olhos e batom rosa bem claro.</p><p>Sentamos em um banco na lagoa e a todo momento eu ainda não conseguia acreditar que estava ali com você, você estava incrível e aquele momento foi mágico pra mim, e tive a certeza disso depois de poder finally te beijar de verdade! E que beijo bom ❤️</p>";break;
+            case "8/5": titulo = "08 de Maio de 2021"; mensagem = "<p>Foi o primeiro dia que saímos.<br>Você estava linda, usando um contorno branco nos olhos e batom rosa bem claro.</p><p>Sentamos em um banco na lagoa e a todo momento eu ainda não conseguia acreditar que estava ali com você, você estava incrível e aquele momento foi mágico pra mim, e tive a certeza disso depois de poder finalmente te beijar de verdade! E que beijo bom ❤️</p>";break;
             case "15/5": titulo = "15 de Maio de 2021"; mensagem = "<p>Foi quando te vi com os cabelos cacheados, nesse dia você estava usando lápis puxado nas pontas. Repetimos o mesmo processo da semana anterior. Saímos, bebemos um pouco e procuramos um lugar para ficarmos mais a vontade, acabamos encontrando aquela casa no final do bairro Muraiaishi. Foi quando fomos pra sua casa pela primeira vez.</p><p>Eu já te contei que acho que as escadas da sua casa parecidas com a de um castelo?</p>";break;
             case "22/5": titulo = "22 de Maio de 2021"; mensagem = "<p>Lembro que eu fiquei o dia todo pensando em algum lugar para que pudessemos sair e ficarmos sozinhos sem ser na lagoa, pois embora estar com você fosse incrível, eu não queria que tudo se transformasse em uma rotina monótona. Sou alguém que gosta de mudar os hábitos, isso me motiva a inovar sempre para que cada vez que você olhar mim, você enxergue um novo Conrado, que você possa se apaixonar cada dia mais e me redescobrir, e redescobrir esse maravilhoso relacionamento que estamos construindo.</p><p>Não deu muito certo, porque no final das contas foi você que teve a ideia de pararmos mais fora da cidade para ver as estrelas, né 🤷</p>";break;
             case "29/5": titulo = "29 de Maio de 2021"; mensagem = "<p>Essa foi a vez que mais rodamos a cidade em busca de um lugar para ficar 🤣<br>Chegamos a ideia do cemitério, que embora fosse sinistro, ainda foi e é um ótimo lugar para ficarmos haha.</p><p>Nesse dia acabamos indo muito cedo para a sua casa, e encontramos com seu irmão e o namorado dele, foi quando eu os conheci. A primeira impressão que tive do seu irmão é que ele é uma pessoa extremamente amigável <small><del>eu pegava</del></small>.</p>";break;
